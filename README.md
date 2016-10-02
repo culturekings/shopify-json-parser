@@ -52,7 +52,7 @@ If there is an error the `capture ` puts it in a variable rather than exposing i
 This is optional however it is highly recommended to use this method.
 
 2. We `include` the file `json_decode` from our snippets directory. Along with this we set the top level namespace for our json which is important to be able to handle multiple json files.
-As we can see this is done by passing the string `test` to the `jd__namespace` include variable. We also then pass our `json` variable we created earlier in to the `jd__data` include variable.
+As we can see this is done by passing the string `example` to the `jd__namespace` include variable. We also then pass our `json` variable we created earlier in to the `jd__data` include variable.
 Both `jd__namespace` and `jd__data` are required for the snippet to work.
 
 What the above does for us is actually build 2 new variables in our liquid template called `jd__global_keys` and `jd__global_values`. It is possible to use these directly however the
@@ -151,21 +151,24 @@ This on the other hand will output each of the keys directly and be separated wi
 Looping over JSON object/array keys
 
 ```
-{%- include 'jd__function' with 'keys|test.product' -%}{%- assign product_keys = jd__yield_1 -%}
+{%- include 'jd__function' with 'keys|example.product' -%}{%- assign product_keys = jd__yield_1 -%}
 {%- for key in product_keys -%}
-    {{ key }} has a value of {% include 'jd__function' with 'echo|example.product.body_html' %}
+{%- assign prepared_function = 'echo | append: '|' | append: key -%}
+    {{ key }} has a value of {% include 'jd__function' with prepared_function %} <br>
+    {{ key }} has a value of {% include 'json_decode_output' with key %} <br>
 {%- endfor -%}
 ```
 
-Dynamic function example
+Storing a variable
+
 ```
-{%- assign function_name = 'keys' -%}
-{%- assign namespace = 'test' -%}
-{%- assign required_object = 'product' -%}
-{%- assign prepated_function = function_name | append: '|' | namespace | append: '.' | required_object -%}
-{%- include 'jd__function' with prepated_function -%}{%- assign product_keys = jd__yield_1 -%}
-{%- for key in product_keys -%}
-    {{ key }} has a value of {% include 'jd__function' with 'echo|example.product.body_html' %}
-{%- endfor -%}
+{%- capture body_html -%}{% include 'jd__function' with 'echo|example.product.body_html' %}{%- endcapture -%}
+```
+
+Accessing Keys and Values
+
+```
+{% include 'json_decode_output' with 'example.product__keys' | split: jd__separator_2 | join: '<br>'  %}
+{% include 'json_decode_output' with 'example.product__values' | split: jd__separator_2 | join: '<br>'  %}
 ```
 
