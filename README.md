@@ -1,2 +1,2 @@
 # shopify-json-parser
-Shopify Liquid utility to parse a JSON string in to local variables
+Shopify Liquid snippets to parse a JSON string to local variables
