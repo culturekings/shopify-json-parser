@@ -1,0 +1,56 @@
+{%- assign jd__private_variables = jd__function | split: '|' -%}
+{%- assign jd__private_function_name = jd__private_variables[0] -%}
+
+{%- assign jd__private_separator_1 = '|jd__fsp1|' -%}
+{%- assign jd__private_separator_1_size = jd__private_separator_1 | size -%}
+
+{%- case jd__private_variables[0] %}
+  {%- when 'array_pop' -%}
+	  {%- if jd__private_variables[2] -%}
+			{%- assign jd__private_current_array = [jd__private_variables[1]] | split: jd__private_variables[2] -%}
+	  {%- else -%}
+			{%- assign jd__private_current_array = [jd__private_variables[1]] -%}
+	  {%- endif -%}
+      {%- assign jd__yield_1 = jd__private_current_array.last -%}
+      {%- assign jd__private_value_size = jd__private_current_array | last | size | plus:jd__private_separator_1_size -%}
+      {%- assign jd__private_size = jd__private_current_array | join: jd__private_separator_1 | size | minus:jd__private_value_size -%}
+	  {%- if jd__private_variables[2] -%}
+			{%- assign jd__private_final_array = jd__private_current_array | join: jd__private_separator_1 | slice: 0, jd__private_size | split: jd__private_separator_1 -%}
+			{%- assign jd__yield_2 = jd__private_final_array | join: jd__private_variables[2] -%}
+	  {%- else -%}
+			{%- assign jd__yield_2 = jd__private_current_array | join: jd__private_separator_1 | slice: 0, jd__private_size | split: jd__private_separator_1 -%}
+	  {%- endif -%}
+  {%- when 'array_push' -%}
+      {%- assign jd__yield_1 = [jd__private_variables[1]] | join: jd__private_separator_1 | append: jd__private_separator_1 | append:[jd__private_variables[2]] | split: jd__private_separator_1 -%}
+  {%- when 'echo' -%}
+      {%- for jd__global_key in jd__global_keys -%}
+      {%- if jd__global_key == jd__private_variables[1] -%}
+      {{- jd__global_values[forloop.index0] -}}
+      {%- break -%}
+      {%- endif -%}
+      {%- endfor -%}
+  {%- when 'keys' -%}
+	  {%- assign jd__yield_1 = '' -%}
+	  {%- assign jd__private_key_index = jd__private_variables[1] | append: '__keys' -%}
+      {%- for jd__global_key in jd__global_keys -%}
+      {%- if jd__global_key == jd__private_key_index -%}
+      {%- assign jd__yield_1 = jd__global_values[forloop.index0] | split: jd__separator_2 -%}
+	  {%- if jd__private_variables[2] -%}
+			{{- jd__global_values[forloop.index0] | split: jd__separator_2 | join: jd__private_variables[2] -}}
+	  {%- endif -%}
+      {%- break -%}
+      {%- endif -%}
+      {%- endfor -%}
+  {%- when 'values' -%}
+	  {%- assign jd__yield_1 = '' -%}
+	  {%- assign jd__private_key_index = jd__private_variables[1] | append: '__values' -%}
+      {%- for jd__global_key in jd__global_keys -%}
+      {%- if jd__global_key == jd__private_key_index -%}
+      {%- assign jd__yield_1 = jd__global_values[forloop.index0] | split: jd__separator_2 -%}
+	  {%- if jd__private_variables[2] -%}
+			{{- jd__global_values[forloop.index0] | split: jd__separator_2 | join: jd__private_variables[2] -}}
+	  {%- endif -%}
+      {%- break -%}
+      {%- endif -%}
+      {%- endfor -%}
+{%- endcase -%}

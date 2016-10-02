@@ -1,0 +1,395 @@
+{%- assign jd__start_type = '0' -%}
+{%- assign jd__object_type = '1' -%}
+{%- assign jd__array_type = '2' -%}
+{%- assign jd__string_type = '3' -%}
+{%- assign jd__number_type = '4' -%}
+{%- assign jd__true_type = '5' -%}
+{%- assign jd__false_type = '6' -%}
+{%- assign jd__null_type = '7' -%}
+
+{%- assign jd__current_token = '' -%}
+{%- assign jd__current_namespace = jd__namespace -%}
+{%- assign jd__current_type = jd__start_type -%}
+
+{%- assign jd__local_keys = '' -%}
+{%- assign jd__local_values = '' -%}
+
+{%- assign jd__level_keys = ' ' | split: '' -%}
+{%- assign jd__level_values = ' ' | split: '' -%}
+{%- assign jd__level_keys_array = '' | split: '' -%}
+{%- assign jd__level_values_array = '' | split: '' -%}
+
+{%- assign jd__stream = jd__data | split: ''  -%}
+{%- assign jd__error = false -%}
+{%- assign jd__continue = false -%}
+
+{%- assign jd__length_counter = 0 -%}
+{%- assign jd__child_counter = 0 -%}
+{%- assign jd__object_counter = 0 -%}
+
+{%- assign jd__parent_type_array = '' | split: '' -%}
+{%- assign jd__child_counter_array = '0' | split: ',' -%}
+
+{%- assign jd__quote = '"' -%}
+{%- assign jd__separator = '|jd__sp1|' -%}
+{%- assign jd__separator_2 = '|jd__sp2|' -%}
+
+{%- assign jd__valid_start_char_string = '[,{,",0,1,2,3,4,5,6,7,8,9,-,f,t,n' -%}
+{%- assign jd__valid_start_char = jd__valid_start_char_string | split: ',' -%}
+
+{%- assign jd__valid_start_char_type_string = '2,1,3,4,4,4,4,4,4,4,4,4,4,4,6,5,7' -%}
+{%- assign jd__valid_start_char_type = jd__valid_start_char_type_string | split: ',' -%}
+
+{%- assign jd__valid_number_string = '0,1,2,3,4,5,6,7,8,9,-,.,e,E,+' -%}
+{%- assign jd__valid_number = jd__valid_number_string | split: ',' -%}
+
+{%- for jd__char in jd__stream -%}
+	{%- assign jd__stripped_char = jd__char | strip -%}
+    {%- if jd__stripped_char != '' or jd__current_type == jd__string_type -%}
+        {%- case jd__current_type -%}
+           {%- when jd__start_type -%}
+                {%- for jd__current_valid_start_char in jd__valid_start_char -%}
+                    {%- if jd__stripped_char == jd__current_valid_start_char -%}
+						{%- assign jd__current_type = jd__valid_start_char_type[forloop.index0] -%}
+						{%- assign jd__continue = true -%}
+						{%- assign jd__length_counter = 0 -%}
+						{%- if jd__stripped_char == '{' or jd__stripped_char == '[' -%}
+                            {%- include 'jd__function' with 'array_push|jd__child_counter_array|jd__child_counter' -%}
+                            {%- assign jd__child_counter_array = jd__yield_1 -%}
+                            {%- assign jd__level_keys = jd__level_keys | join: jd__separator_2 -%}
+                            {%- include 'jd__function' with 'array_push|jd__level_keys_array|jd__level_keys' -%}
+                            {%- assign jd__level_keys_array = jd__yield_1 -%}
+                            {%- assign jd__level_keys = ' ' | split: '' -%}
+                            {%- assign jd__level_values = jd__level_values | join: jd__separator_2 -%}
+                            {%- include 'jd__function' with 'array_push|jd__level_values_array|jd__level_values' -%}
+                            {%- assign jd__level_values_array = jd__yield_1 -%}
+                            {%- assign jd__level_values = ' ' | split: '' -%}
+                            {%- assign jd__child_counter = 0 -%}
+						{%- endif -%}
+                        {%- if jd__valid_number contains jd__stripped_char -%}
+                        	{%- assign jd__current_token = jd__current_token | append: jd__stripped_char -%}
+                        {%- endif -%}
+                        {%- break -%}
+                    {%- endif -%}
+                {%- endfor -%}
+				{%- if jd__continue == true -%}
+					{%- assign jd__continue = false -%}
+					{%- continue -%}
+				{%- endif -%}
+				{%- assign jd__error = true -%}
+                Invalid Start Character!
+                {%- break -%}
+            {%- when jd__object_type -%}
+				{%- if jd__child_counter == 0 and jd__object_counter == 0 -%}
+                    {%- include 'jd__function' with 'array_push|jd__parent_type_array|jd__current_type' -%}
+                    {%- assign jd__parent_type_array = jd__yield_1 -%}
+					{%- assign jd__child_counter = jd__child_counter | plus: 1 -%}
+				{%- endif -%}
+				{%- if jd__stripped_char == '}' -%}
+					{%- if jd__local_keys != '' -%}
+                        {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace -%}
+                        {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__current_token -%}
+					{%- else -%}
+                        {%- assign jd__local_keys = jd__local_keys | append: jd__current_namespace -%}
+                        {%- assign jd__local_values = jd__local_values | append: jd__current_token -%}
+					{%- endif -%}
+                    {%- include 'jd__function' with 'array_push|jd__level_keys|jd__current_namespace' -%}
+                    {%- assign jd__level_keys = jd__yield_1 | join: jd__separator_2 | lstrip | remove_first: jd__separator_2  -%}
+                    {%- include 'jd__function' with 'array_push|jd__level_values|jd__current_token' -%}
+                    {%- assign jd__level_values = jd__yield_1 | join: jd__separator_2 | lstrip | remove_first: jd__separator_2 -%}
+					{%- include 'jd__function' with 'array_pop|jd__parent_type_array' -%}
+					{%- assign jd__parent_type_array = jd__yield_2 -%}
+					{%- assign jd__current_type = jd__parent_type_array.last -%}
+					{%- include 'jd__function' with 'array_pop|jd__current_namespace|.' -%}
+					{%- assign jd__current_namespace = jd__yield_2 -%}
+					{%- include 'jd__function' with 'array_pop|jd__child_counter_array' -%}
+					{%- assign jd__child_counter = jd__yield_1 -%}
+					{%- assign jd__child_counter_array = jd__yield_2 -%}
+                    {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__keys' -%}
+                    {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_keys -%}
+                    {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__values' -%}
+                    {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_values -%}
+					{%- include 'jd__function' with 'array_pop|jd__level_keys_array' -%}
+					{%- assign jd__level_keys = jd__yield_1 | split: jd__separator_2 -%}
+					{%- assign jd__level_keys_array = jd__yield_2 -%}
+					{%- include 'jd__function' with 'array_pop|jd__level_values_array' -%}
+					{%- assign jd__level_values = jd__yield_1 | split: jd__separator_2 -%}
+					{%- assign jd__level_values_array = jd__yield_2 -%}
+					{%- assign jd__current_token = "Object" -%}
+					{%- continue -%}
+				{%- endif -%}
+				{%- if jd__object_counter == 0 and jd__stripped_char == ',' -%}
+					{%- if jd__local_keys != '' -%}
+                        {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace -%}
+                        {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__current_token -%}
+					{%- else -%}
+                        {%- assign jd__local_keys = jd__local_keys | append: jd__current_namespace -%}
+                        {%- assign jd__local_values = jd__local_values | append: jd__current_token -%}
+					{%- endif -%}
+                    {%- include 'jd__function' with 'array_push|jd__level_keys|jd__current_namespace' -%}
+                    {%- assign jd__level_keys = jd__yield_1 -%}
+                    {%- include 'jd__function' with 'array_push|jd__level_values|jd__current_token' -%}
+                    {%- assign jd__level_values = jd__yield_1 -%}
+					{%- include 'jd__function' with 'array_pop|jd__current_namespace|.' -%}
+					{%- assign jd__current_namespace = jd__yield_2 -%}
+					{%- assign jd__child_counter = jd__child_counter | plus: 1 -%}
+					{%- continue -%}
+				{%- endif -%}
+				{%- if jd__object_counter == 0 and jd__stripped_char == '"' -%}
+					{%- assign jd__object_counter = 1 -%}
+					{%- assign jd__current_type = jd__string_type -%}
+					{%- assign jd__current_token = '' -%}
+					{%- continue -%}
+				{%- endif -%}
+				{%- if jd__object_counter == 1 and jd__stripped_char == ':' -%}
+					{%- assign jd__object_counter = 2 -%}
+					{%- assign jd__current_namespace = jd__current_namespace | append:'.' | append: jd__current_token -%}
+					{%- assign jd__current_token = '' -%}
+					{%- continue -%}
+				{%- endif -%}
+				{%- if jd__object_counter == 2 -%}
+					{%- assign jd__object_counter = 0 -%}
+                    {%- for jd__current_valid_start_char in jd__valid_start_char -%}
+                        {%- if jd__stripped_char == jd__current_valid_start_char -%}
+                            {%- assign jd__current_type = jd__valid_start_char_type[forloop.index0] -%}
+                            {%- assign jd__continue = true -%}
+							{%- assign jd__length_counter = 0 -%}
+                            {%- if jd__stripped_char == '{' or jd__stripped_char == '[' -%}
+                                {%- include 'jd__function' with 'array_push|jd__child_counter_array|jd__child_counter' -%}
+                                {%- assign jd__child_counter_array = jd__yield_1 -%}
+                                {%- assign jd__child_counter = 0 -%}
+								{%- assign jd__level_keys = jd__level_keys | join: jd__separator_2 -%}
+								{%- include 'jd__function' with 'array_push|jd__level_keys_array|jd__level_keys' -%}
+                                {%- assign jd__level_keys_array = jd__yield_1 -%}
+                                {%- assign jd__level_keys = ' ' | split: '' -%}
+                                {%- assign jd__level_values = jd__level_values | join: jd__separator_2 -%}
+                                {%- include 'jd__function' with 'array_push|jd__level_values_array|jd__level_values' -%}
+                                {%- assign jd__level_values_array = jd__yield_1 -%}
+                                {%- assign jd__level_values = ' ' | split: '' -%}
+                            {%- endif -%}
+							{%- if jd__valid_number contains jd__stripped_char -%}
+								{%- assign jd__current_token = jd__current_token | append: jd__stripped_char -%}
+							{%- endif -%}
+                            {%- break -%}
+                        {%- endif -%}
+                    {%- endfor -%}
+                    {%- if jd__continue == true -%}
+                        {%- assign jd__continue = false -%}
+                        {%- continue -%}
+                    {%- endif -%}
+				{%- endif -%}
+				{%- assign jd__error = true -%}
+                Invalid Character following Object Start!
+                {%- break -%}
+            {%- when jd__array_type -%}
+				{%- if jd__child_counter == 0 -%}
+                    {%- include 'jd__function' with 'array_push|jd__parent_type_array|jd__current_type' -%}
+                    {%- assign jd__parent_type_array = jd__yield_1 -%}
+					{%- assign jd__current_namespace = jd__current_namespace | append:'.' | append: jd__child_counter -%}
+				{%- endif -%}
+				{%- if jd__stripped_char == "," -%}
+                        {%- if jd__local_keys != '' -%}
+                            {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace -%}
+                            {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__current_token -%}
+                        {%- else -%}
+                            {%- assign jd__local_keys = jd__local_keys | append: jd__current_namespace -%}
+                            {%- assign jd__local_values = jd__local_values | append: jd__current_token -%}
+                        {%- endif -%}
+                        {%- include 'jd__function' with 'array_push|jd__level_keys|jd__current_namespace' -%}
+                        {%- assign jd__level_keys = jd__yield_1 -%}
+                        {%- include 'jd__function' with 'array_push|jd__level_values|jd__current_token' -%}
+                        {%- assign jd__level_values = jd__yield_1 -%}
+ 						{%- include 'jd__function' with 'array_pop|jd__current_namespace|.' -%}
+						{%- assign jd__current_namespace = jd__yield_2 -%}
+						{%- assign jd__current_namespace = jd__current_namespace | append:'.' | append: jd__child_counter -%}
+						{%- continue -%}
+				{%- endif -%}
+				{%- if jd__stripped_char == "]" -%}
+					{%- if jd__child_counter != 0 -%}
+                        {%- if jd__local_keys != '' -%}
+                            {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace -%}
+                            {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__current_token -%}
+                        {%- else -%}
+                            {%- assign jd__local_keys = jd__local_keys | append: jd__current_namespace -%}
+                            {%- assign jd__local_values = jd__local_values | append: jd__current_token -%}
+                        {%- endif -%}
+					{%- endif -%}
+                    {%- include 'jd__function' with 'array_push|jd__level_keys|jd__current_namespace' -%}
+                    {%- assign jd__level_keys = jd__yield_1 | join: jd__separator_2 | lstrip | remove_first: jd__separator_2 -%}
+                    {%- include 'jd__function' with 'array_push|jd__level_values|jd__current_token' -%}
+                    {%- assign jd__level_values = jd__yield_1 | join: jd__separator_2 | lstrip | remove_first: jd__separator_2 -%}
+					{%- include 'jd__function' with 'array_pop|jd__parent_type_array' -%}
+					{%- assign jd__parent_type_array = jd__yield_2 -%}
+					{%- assign jd__current_type = jd__parent_type_array.last -%}
+					{%- include 'jd__function' with 'array_pop|jd__current_namespace|.' -%}
+					{%- assign jd__current_namespace = jd__yield_2 -%}
+					{%- include 'jd__function' with 'array_pop|jd__child_counter_array' -%}
+					{%- assign jd__child_counter = jd__yield_1 -%}
+					{%- assign jd__child_counter_array = jd__yield_2 -%}
+                    {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__keys' -%}
+                    {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_keys -%}
+                    {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__values' -%}
+                    {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_values -%}
+					{%- include 'jd__function' with 'array_pop|jd__level_keys_array' -%}
+					{%- assign jd__level_keys = jd__yield_1 | split: jd__separator_2 -%}
+					{%- assign jd__level_keys_array = jd__yield_2 -%}
+					{%- include 'jd__function' with 'array_pop|jd__level_values_array' -%}
+					{%- assign jd__level_values = jd__yield_1 | split: jd__separator_2 -%}
+					{%- assign jd__level_values_array = jd__yield_2 -%}
+					{%- assign jd__current_token = "Array" -%}
+					{%- continue -%}
+				{%- endif -%}
+				{%- if jd__stripped_char != ']' -%}
+
+                    {%- for jd__current_valid_start_char in jd__valid_start_char -%}
+                        {%- if jd__stripped_char == jd__current_valid_start_char -%}
+
+					{%- assign jd__child_counter = jd__child_counter | plus: 1 -%}
+                            {%- assign jd__current_type = jd__valid_start_char_type[forloop.index0] -%}
+                            {%- assign jd__continue = true -%}
+							{%- assign jd__current_token = '' -%}
+                            {%- assign jd__length_counter = 0 -%}
+                            {%- if jd__stripped_char == '{' or jd__stripped_char == '[' -%}
+                                {%- include 'jd__function' with 'array_push|jd__child_counter_array|jd__child_counter' -%}
+                                {%- assign jd__child_counter_array = jd__yield_1 -%}
+                                {%- assign jd__child_counter = 0 -%}
+								{%- assign jd__level_keys = jd__level_keys | join: jd__separator_2 -%}
+								{%- include 'jd__function' with 'array_push|jd__level_keys_array|jd__level_keys' -%}
+                                {%- assign jd__level_keys_array = jd__yield_1 -%}
+                                {%- assign jd__level_keys = ' ' | split: '' -%}
+                                {%- assign jd__level_values = jd__level_values | join: jd__separator_2 -%}
+                                {%- include 'jd__function' with 'array_push|jd__level_values_array|jd__level_values' -%}
+                                {%- assign jd__level_values_array = jd__yield_1 -%}
+                                {%- assign jd__level_values = ' ' | split: '' -%}
+                            {%- endif -%}
+							{%- if jd__valid_number contains jd__stripped_char -%}
+								{%- assign jd__current_token = jd__current_token | append: jd__stripped_char -%}
+							{%- endif -%}
+                            {%- break -%}
+                        {%- endif -%}
+                    {%- endfor -%}
+				{%- endif -%}
+				{%- if jd__continue == true -%}
+					{%- assign jd__continue = false -%}
+					{%- continue -%}
+				{%- endif -%}
+                Invalid Character following Array Start!
+				{%- assign jd__error = true -%}
+                {%- break -%}
+            {%- when jd__string_type -%}
+				{%- if jd__stripped_char_2 != "\" and jd__stripped_char == jd__quote -%}
+					{%- assign jd__current_type = jd__parent_type_array.last -%}
+					{%- continue -%}
+				{%- endif -%}
+				{%- if jd__stripped_char_3 == "\" and jd__stripped_char_2 == "\" and jd__stripped_char == jd__quote -%}
+					{%- assign jd__current_type = jd__parent_type_array.last -%}
+					{%- continue -%}
+				{%- endif -%}
+				{%- assign jd__current_token = jd__current_token | append: jd__char -%}
+            {%- when jd__number_type -%}
+				{%- unless jd__valid_number contains jd__stripped_char -%}
+					{%- assign jd__current_type = jd__parent_type_array.last -%}
+					{%- if jd__object_counter == 0 and jd__stripped_char == '}' -%}
+                        {%- if jd__local_keys != '' -%}
+                            {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace -%}
+                            {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__current_token -%}
+                        {%- else -%}
+                            {%- assign jd__local_keys = jd__local_keys | append: jd__current_namespace -%}
+                            {%- assign jd__local_values = jd__local_values | append: jd__current_token -%}
+                        {%- endif -%}
+                        {%- include 'jd__function' with 'array_push|jd__level_keys|jd__current_namespace' -%}
+                        {%- assign jd__level_keys = jd__yield_1 | join: jd__separator_2 | lstrip | remove_first: jd__separator_2 -%}
+                        {%- include 'jd__function' with 'array_push|jd__level_values|jd__current_token' -%}
+                        {%- assign jd__level_values = jd__yield_1 | join: jd__separator_2 | lstrip | remove_first: jd__separator_2 -%}
+                        {%- include 'jd__function' with 'array_pop|jd__parent_type_array' -%}
+                        {%- assign jd__parent_type_array = jd__yield_2 -%}
+                        {%- assign jd__current_type = jd__parent_type_array.last -%}
+                        {%- include 'jd__function' with 'array_pop|jd__current_namespace|.' -%}
+                        {%- assign jd__current_namespace = jd__yield_2 -%}
+                        {%- include 'jd__function' with 'array_pop|jd__child_counter_array' -%}
+                        {%- assign jd__child_counter = jd__yield_1 -%}
+                        {%- assign jd__child_counter_array = jd__yield_2 -%}
+                        {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__keys' -%}
+                        {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_keys -%}
+                        {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__values' -%}
+                        {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_values -%}
+                        {%- include 'jd__function' with 'array_pop|jd__level_keys_array' -%}
+                        {%- assign jd__level_keys = jd__yield_1 | split: jd__separator_2 -%}
+                        {%- assign jd__level_keys_array = jd__yield_2 -%}
+                        {%- include 'jd__function' with 'array_pop|jd__level_values_array' -%}
+                        {%- assign jd__level_values = jd__yield_1 | split: jd__separator_2 -%}
+                        {%- assign jd__level_values_array = jd__yield_2 -%}
+                        {%- assign jd__current_token = "Object" -%}
+                        {%- continue -%}
+                    {%- endif -%}
+                    {%- if jd__object_counter == 0 and jd__stripped_char == ',' -%}
+                    	{%- if jd__local_keys != '' -%}
+                            {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace -%}
+                            {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__current_token -%}
+                        {%- else -%}
+                            {%- assign jd__local_keys = jd__local_keys | append: jd__current_namespace -%}
+                            {%- assign jd__local_values = jd__local_values | append: jd__current_token -%}
+                        {%- endif -%}
+                        {%- include 'jd__function' with 'array_push|jd__level_keys|jd__current_namespace' -%}
+                        {%- assign jd__level_keys = jd__yield_1 -%}
+                        {%- include 'jd__function' with 'array_push|jd__level_values|jd__current_token' -%}
+                        {%- assign jd__level_values = jd__yield_1 -%}
+                        {%- include 'jd__function' with 'array_pop|jd__current_namespace|.' -%}
+                        {%- assign jd__current_namespace = jd__yield_2 -%}
+                        {%- assign jd__child_counter = jd__child_counter | plus: 1 -%}
+                        {%- continue -%}
+                    {%- endif -%}
+					{%- continue -%}
+				{%- endunless -%}
+				{%- assign jd__current_token = jd__current_token | append: jd__stripped_char -%}
+            {%- when jd__true_type -%}
+				{%- assign jd__length_counter = jd__length_counter | plus: 1 -%}
+          		{%- if jd__length_counter == 3 -%}
+                  	{%- assign jd__current_type = jd__parent_type_array.last -%}
+					{%- assign jd__current_token = "true" -%}
+                  {%- continue -%}
+                {%- endif -%}
+            {%- when jd__false_type -%}
+				{%- assign jd__length_counter = jd__length_counter | plus: 1 -%}
+                {%- if jd__length_counter == 4 -%}
+                  	{%- assign jd__current_type = jd__parent_type_array.last -%}
+					{%- assign jd__current_token = "false" -%}
+                  {%- continue -%}
+                {%- endif -%}
+            {%- when jd__null_type -%}
+				{%- assign jd__length_counter = jd__length_counter | plus: 1 -%}
+                {%- if jd__length_counter == 3 -%}
+                  	{%- assign jd__current_type = jd__parent_type_array.last -%}
+					{%- assign jd__current_token = "null" -%}
+                  {%- continue -%}
+                {%- endif -%}
+            {%- else -%}
+                Ended up in an unsupported type!
+				{%- assign jd__error = true -%}
+				{%- break -%}
+        {%- endcase -%}
+    {%- assign jd__stripped_char_4 = jd__stripped_char_3 -%}
+    {%- assign jd__stripped_char_3 = jd__stripped_char_2 -%}
+    {%- assign jd__stripped_char_2 = jd__stripped_char -%}
+    {%- continue -%}
+    {%- endif -%}
+{%- endfor -%}
+{%- if jd__local_keys != '' -%}
+    {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace -%}
+    {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__current_token -%}
+{%- else -%}
+    {%- assign jd__local_keys = jd__local_keys | append: jd__current_namespace -%}
+    {%- assign jd__local_values = jd__local_values | append: jd__current_token -%}
+{%- endif -%}
+{%- include 'jd__function' with 'array_push|jd__level_keys|jd__current_namespace' -%}
+{%- assign jd__level_keys = jd__yield_1 | join: jd__separator_2 -%}
+{%- include 'jd__function' with 'array_push|jd__level_values|jd__current_token' -%}
+{%- assign jd__level_values = jd__yield_1 | join: jd__separator_2 -%}
+{%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__keys' -%}
+{%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_keys -%}
+{%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__values' -%}
+{%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_values -%}
+{%- if jd__error == false -%}
+	{%- assign jd__global_keys = jd__global_keys | join: jd__separator | append: jd__local_keys | split: jd__separator -%}
+	{%- assign jd__global_values = jd__global_values | join: jd__separator | append: jd__local_values | split: jd__separator -%}
+{%- endif -%}

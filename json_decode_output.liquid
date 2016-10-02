@@ -1,0 +1,6 @@
+{%- for jd__global_key in jd__global_keys -%}
+{%- if json_decode_output == jd__global_key -%}
+{{- jd__global_values[forloop.index0] -}}
+{%- break -%}
+{%- endif -%}
+{%- endfor -%}
