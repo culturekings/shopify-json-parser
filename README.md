@@ -172,3 +172,12 @@ Accessing Keys and Values
 {% include 'json_decode_output' with 'example.product__values' | split: jd__separator_2 | join: '<br>'  %}
 ```
 
+## Full Usage
+
+```
+{%- capture 'json' -%}["one","two","three"]{%- endcapture -%}
+{%- capture json_error -%}{%- include 'json_decode' jd__namespace:'count' jd__data:json -%}{%- endcapture -%}
+{%- if json_error != '' -%}{{ json_error }}{%- endif %}
+{%- include 'jd__function' with 'values|count' -%}{%- assign values = jd__yield_1 -%}
+Counting to 3 : {{ values | join: ", " }}
+```
