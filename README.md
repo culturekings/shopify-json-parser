@@ -153,7 +153,7 @@ Looping over JSON object/array keys
 ```
 {%- include 'jd__function' with 'keys|example.product' -%}{%- assign product_keys = jd__yield_1 -%}
 {%- for key in product_keys -%}
-{%- assign prepared_function = 'echo | append: '|' | append: key -%}
+{%- assign prepared_function = echo | append: '|' | append: key -%}
     {{ key }} has a value of {% include 'jd__function' with prepared_function %} <br>
     {{ key }} has a value of {% include 'json_decode_output' with key %} <br>
 {%- endfor -%}
