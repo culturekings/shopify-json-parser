@@ -3,7 +3,7 @@
   The value of the key must be a simple array.
   
   Usage:
-    {% include 'json_lazy_decode' json: product.metafields.global.JAN key: 'three_sixty' %}{% assign three_sixty = jd__yield_1 %}
+    {% include 'json_lazy_decode' json: product.metafields.global.JAN key: 'three_sixty' %}{% assign three_sixty = jld__yield_1 %}
 {%- endcomment -%}
 {%- assign jld__key_quoted = key | append : '"' | prepend : '"' -%}
 {%- assign jld__value = json | split: jld__key_quoted -%}
