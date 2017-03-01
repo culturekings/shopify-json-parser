@@ -194,5 +194,5 @@ To overcome this we have developed a very simple lazy parser that only looks for
 Usage is as follows
 
 ```liquid
-{% include 'json_lazy_decode' json: product.metafields.global.JAN key: 'three_sixty' %}{% assign three_sixty = jd__yield_1 %}
+{% include 'json_lazy_decode' json: product.metafields.global.JAN key: 'three_sixty' %}{% assign three_sixty = jld__yield_1 %}
 ```
