@@ -1,0 +1,14 @@
+{%- comment -%}
+This function is used when speed is important.
+It simply searches for key.
+The value of the key must be a simple array
+
+Usage : {% include 'json_lazy_decode' json: product.metafields.global.JAN key: 'three_sixty' %}{% assign three_sixty = jd__yield_1 %}
+
+{%- endcomment -%}
+{%- assign key_quoted = key | append : '"' | prepend : '"' -%}
+{%- assign value = json | split: key_quoted -%}
+{%- assign value = value[1] | split: '[' -%}
+{%- assign value = value[1] | split: ']' -%}
+{%- assign value = value[0] | replace: '"', '' -%}
+{%- assign jd__yield_1 = value | split: ',' -%}

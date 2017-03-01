@@ -22,7 +22,7 @@ And your done!
 
 Ok lets start with an example. Here we are going to store a JSON string in to the `json` variable in our template. This is standard liquid.
 
-```
+```liquid
 {%- capture 'json' -%}
 {
     "product": {
@@ -39,7 +39,7 @@ Usually from here you wouldn't be able to do anything with this data except push
 
 Lets now load this string in to the json_decode snippet so that we can then access it later in the liquid file
 
-```
+```liquid
 {%- capture json_error -%}
     {%- include 'json_decode' jd__namespace:'example' jd__data:json -%}
 {%- endcapture -%}
@@ -89,7 +89,7 @@ The available functions are `echo`, `keys` and `values`. All functions variables
 
 The `echo` function works by first adding the `|` symbol and then the variable name you want to access such as below
 
-```
+```liquid
 {% include 'jd__function' with 'echo|example.product.body_html' %}
 ```
 
@@ -103,12 +103,12 @@ The syntax for `keys` is `keys|:name|:separator` the `:name` attribute is the na
 access an array containing `colour, condition, body_html and vendor` with their full namespaces. The `separator` attribute is optional and if not used will cause the below function to output its
  value to a `jd__yield_1` liquid variable. If the `separator` attribute is used then the array will be outputted directly to the template using the provided seperator between array keys.
 
-```
+```liquid
 {%- include 'jd__function' with 'keys|example.product' -%}{%- assign product_keys = jd__yield_1 -%}
 ```
 The above will set `product_keys` as an array which can then be used in for loops or with array filters.
 
-```
+```liquid
 {%- include 'jd__function' with 'keys|example.product|<br>' -%}
 ```
 
@@ -120,12 +120,12 @@ This on the other hand will output each of the keys directly and be separated wi
 
 The `values` function matches the above `keys` function with the only difference being the variables value will be outputted rather than the key name
 
-```
+```liquid
 {%- include 'jd__function' with 'values|example.product' -%}{%- assign product_keys = jd__yield_1 -%}
 ```
 The above will set `product_keys` as an array which can then be used in for loops or with array filters.
 
-```
+```liquid
 {%- include 'jd__function' with 'values|example.product|<br>' -%}
 ```
 
@@ -135,12 +135,12 @@ This on the other hand will output each of the keys directly and be separated wi
 
 The `values` function matches the above `keys` function with the only difference being the variables value will be outputted rather than the key name
 
-```
+```liquid
 {%- include 'jd__function' with 'values|example.product' -%}{%- assign product_values = jd__yield_1 -%}
 ```
 The above will set `product_keys` as an array which can then be used in for loops or with array filters.
 
-```
+```liquid
 {%- include 'jd__function' with 'values|example.product|<br>' -%}
 ```
 
@@ -150,7 +150,7 @@ This on the other hand will output each of the keys directly and be separated wi
 
 Looping over JSON object/array keys
 
-```
+```liquid
 {%- include 'jd__function' with 'keys|example.product' -%}{%- assign product_keys = jd__yield_1 -%}
 {%- for key in product_keys -%}
 {%- assign prepared_function = echo | append: '|' | append: key -%}
@@ -161,23 +161,37 @@ Looping over JSON object/array keys
 
 Storing a variable
 
-```
+```liquid
 {%- capture body_html -%}{% include 'jd__function' with 'echo|example.product.body_html' %}{%- endcapture -%}
 ```
 
 Accessing Keys and Values
 
-```
+```liquid
 {% include 'json_decode_output' with 'example.product__keys' | split: jd__separator_2 | join: '<br>'  %}
 {% include 'json_decode_output' with 'example.product__values' | split: jd__separator_2 | join: '<br>'  %}
 ```
 
 ## Full Usage
 
-```
+```liquid
 {%- capture 'json' -%}["one","two","three"]{%- endcapture -%}
 {%- capture json_error -%}{%- include 'json_decode' jd__namespace:'count' jd__data:json -%}{%- endcapture -%}
 {%- if json_error != '' -%}{{ json_error }}{%- endif %}
 {%- include 'jd__function' with 'values|count' -%}{%- assign values = jd__yield_1 -%}
 Counting to 3 : {{ values | join: ", " }}
+```
+
+## Performance Issues and Work Arounds
+
+As this library is written in liquid its processing speed isn't the greatest. 
+
+We have found when looping over products in a collection can slow the liquid render time to greater than 5 seconds.
+
+To overcome this we have developed a very simple lazy parser that only looks for a key and responds with the array value.
+
+Usage is as follows
+
+```liquid
+{% include 'json_lazy_decode' json: product.metafields.global.JAN key: 'three_sixty' %}{% assign three_sixty = jd__yield_1 %}
 ```
