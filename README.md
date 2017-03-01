@@ -14,6 +14,7 @@ Installing is rather simple. Just copy the two following files in to your snippe
 json_decode.liquid - This is the file that does the hardwork
 jd__function.liquid - This provides core functions for the json_decode snippet and also provides convenience methods.
 json_decode_output.liquid - This file is optional and just provides another way to access the data
+json_lazy_decode.liquid - This file is optional and provides a more efficient decode for single array values.
 ```
 
 And your done!
