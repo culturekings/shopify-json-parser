@@ -390,6 +390,6 @@
 {%- assign jd__local_keys = jd__local_keys | append: jd__separator | append: jd__current_namespace | append: '__values' -%}
 {%- assign jd__local_values = jd__local_values | append: jd__separator | append: jd__level_values -%}
 {%- if jd__error == false -%}
-	{%- assign jd__global_keys = jd__global_keys | join: jd__separator | append: jd__local_keys | split: jd__separator -%}
-	{%- assign jd__global_values = jd__global_values | join: jd__separator | append: jd__local_values | split: jd__separator -%}
+	{%- assign jd__global_keys = jd__global_keys | join: jd__separator | append: jd__separator | append: jd__local_keys | split: jd__separator -%}
+	{%- assign jd__global_values = jd__global_values | join: jd__separator | append: jd__separator | append: jd__local_values | split: jd__separator -%}
 {%- endif -%}
